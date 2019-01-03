@@ -8,8 +8,7 @@ const kbzurl = 'https://www.kbzbank.com/en/';
 const cburl = 'https://www.cbbank.com.mm/admin/api.xml';
 const maburl = 'https://www.mabbank.com/foreign-exchange-rate'
 const ayaurl = 'https://www.ayabank.com/en_US/'
-// const PORT = process.env.PORT || 8888
-const PORT = 8888
+const PORT = process.env.PORT || 8888
 var app = express()
 
 app.get('/kbz', function (req, res){
