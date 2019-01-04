@@ -4,14 +4,17 @@ const cheerio = require('cheerio');
 const rp = require('request-promise');
 const convert_xml = require('xml-js');
 const cloudscraper = require('cloudscraper')
+const cacheMiddleware = require('./caching_middleware')
 const kbzurl = 'https://www.kbzbank.com/en/';
 const cburl = 'https://www.cbbank.com.mm/admin/api.xml';
 const maburl = 'https://www.mabbank.com/foreign-exchange-rate'
 const ayaurl = 'https://www.ayabank.com/en_US/'
-const PORT = process.env.PORT || 8888
+const PORT = process.env.PORT || 8888;
+const middleware = cacheMiddleware.cachingMiddleware
 var app = express()
 
-app.get('/kbz', function (req, res){
+
+app.get('/kbz', middleware(30), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
@@ -53,7 +56,7 @@ app.get('/kbz', function (req, res){
 	
 })
 
-app.get('/cb', function (req, res){
+app.get('/cb', middleware(30), function (req, res){
 	if (req.method === 'PUT') {
 		return res.status(403).send('Forbidden!');
 	}
@@ -86,7 +89,7 @@ app.get('/cb', function (req, res){
 	
 })
 
-app.get('/mab', function (req, res){
+app.get('/mab', middleware(30), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
@@ -130,7 +133,7 @@ app.get('/mab', function (req, res){
 	
 })
 
-app.get('/aya', function (req, res){
+app.get('/aya', middleware(30), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
