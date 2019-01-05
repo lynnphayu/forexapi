@@ -28,7 +28,6 @@ app.get('/kbz', middleware(30), function (req, res){
 
 	rp(options)
 		.then(function ($) {
-			var container = [];
 			var currencyRates = [];
 			var exRate = $('div.exchange-rate>div.col-lg-2').first().text()
 			var date = exRate.slice(exRate.indexOf("/")-2,exRate.length-2)
@@ -44,11 +43,10 @@ app.get('/kbz', middleware(30), function (req, res){
 				}
 			});
 
-			container.push({
+			res.send({
 				date: date,
 				currencyRates: currencyRates
 			})
-			res.send(container)
 		})
 		.catch(function (err) {
 			res.send(err);
@@ -61,8 +59,7 @@ app.get('/cb', middleware(30), function (req, res){
 		return res.status(403).send('Forbidden!');
 	}
 
-	var options = {ignoreComment: true, alwaysChildren: true, compact: true};
-	var container = [];
+	var options = {ignoreComment: true, alwaysChildren: true, compact: true}
 	var currencyRates = [];
 	var date = ''
 
@@ -77,11 +74,10 @@ app.get('/cb', middleware(30), function (req, res){
 					sell: element.sell._text,
 				})
 			})
-			container.push({
+			res.send({
 				date: date,
 				currencyRates: currencyRates
 				})
-			res.send(container)
 		})
 		.catch(function (err) {
 			res.send(err);
@@ -100,7 +96,6 @@ app.get('/mab', middleware(30), function (req, res){
 			}
 			const $ = cheerio.load(body);
 
-			var container = [];
 			var currencyRates = [{},{},{},{},{},];
 			var date = $('div.exchange-box>div.effected>span').text().replace(/ |\n|\t/g,'')
 			var data = []
@@ -124,11 +119,10 @@ app.get('/mab', middleware(30), function (req, res){
 					k++
 				}
 			}
-			container.push({
+			res.send({
 				date: date,
 				currencyRates: currencyRates
 			})
-			res.send(container)
 		})
 	
 })
@@ -149,7 +143,6 @@ app.get('/aya', middleware(30), function (req, res){
 		.then(function ($) {
 			var currencyRates = [{},{},{}];
 			var data = []
-			var container = [];
 			var date = $('#tablepress-1>tbody>tr>td').first().text().replace(/\n/g,'').trim()
 			$('#tablepress-1>tbody>tr>td').each(function(i,element){
 				if(i>2 && $(element).html()!=$('#tablepress-1>tbody>tr>td').last().html())
@@ -170,12 +163,10 @@ app.get('/aya', middleware(30), function (req, res){
 					k++
 				}
 			}
-			container.push({
+			res.send({
 				date: date,
 				currencyRates: currencyRates
 			})
-			console.log(date)
-			res.send(container)
 		})
 		.catch(function (err) {
 			res.send(err);
