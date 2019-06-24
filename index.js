@@ -14,7 +14,7 @@ const middleware = cacheMiddleware.cachingMiddleware
 var app = express()
 
 
-app.get('/kbz', middleware(30), function (req, res){
+app.get('/kbz', middleware(10), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
@@ -28,18 +28,17 @@ app.get('/kbz', middleware(30), function (req, res){
 
 	rp(options)
 		.then(function ($) {
-			var currencyRates = [];
+			var currencyRates = {};
 			var exRate = $('div.exchange-rate>div.col-lg-2').first().text()
 			var date = exRate.slice(exRate.indexOf("/")-2,exRate.length-2)
 
 			$('div.exchange-rate>div.col-lg-2').each(function(i, foo) {
 				if(i != 0){
 					const target = $(foo).text()
-					currencyRates.push({
-						currency: target.slice(0, target.indexOf(" ")).replace('\n\t',''),
+					currencyRates[target.slice(0, target.indexOf(" ")).replace('\n\t','')] = {
 						buy: target.slice(target.indexOf("BUY")+4, target.indexOf("SELL")-1),
 						sell: target.slice(target.indexOf("SELL")+5, target.length)
-					})
+					}
 				}
 			});
 
@@ -54,13 +53,13 @@ app.get('/kbz', middleware(30), function (req, res){
 	
 })
 
-app.get('/cb', middleware(30), function (req, res){
+app.get('/cb', middleware(10), function (req, res){
 	if (req.method === 'PUT') {
 		return res.status(403).send('Forbidden!');
 	}
 
 	var options = {ignoreComment: true, alwaysChildren: true, compact: true}
-	var currencyRates = [];
+	var currencyRates = {};
 	var date = ''
 
 	rp(cburl)
@@ -68,11 +67,10 @@ app.get('/cb', middleware(30), function (req, res){
 			result = convert_xml.xml2js(target, options)
 			result.rates.cbrate.forEach(function(element){
 				date = element.date._text
-				currencyRates.push({
-					currency: element.currency._text,
+				currencyRates[element.currency._text] = {
 					buy: element.buy._text,
 					sell: element.sell._text,
-				})
+				}
 			})
 			res.send({
 				date: date,
@@ -85,7 +83,7 @@ app.get('/cb', middleware(30), function (req, res){
 	
 })
 
-app.get('/mab', middleware(30), function (req, res){
+app.get('/mab', middleware(10), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
@@ -96,7 +94,7 @@ app.get('/mab', middleware(30), function (req, res){
 			}
 			const $ = cheerio.load(body);
 
-			var currencyRates = [{},{},{},{},{},];
+			var currencyRates = {};
 			var date = $('div.exchange-box>div.effected>span').text().replace(/ |\n|\t/g,'')
 			var data = []
 
@@ -106,18 +104,21 @@ app.get('/mab', middleware(30), function (req, res){
 			});
 
 			var j = 0 
-			var k = 0
+			var i = 0
 			while(j<data.length){
-				if(j%3==0)
-					currencyRates[k].currency = data[j]
-				else if(j%3==1)
-					currencyRates[k].buy = data[j]
-				else if(j%3==2)
-					currencyRates[k].sell = data[j]
-				j+=1;
-				if(j%3==0){
-					k++
+				var buy
+				var sell
+				if(j%3!=0){
+					buy = data[j]
+					j++
+					sell= data[j]
+					currencyRates[data[i]] = {
+						buy : buy,
+						sell : sell
+					}
+					i += 3
 				}
+				j++
 			}
 			res.send({
 				date: date,
@@ -127,7 +128,7 @@ app.get('/mab', middleware(30), function (req, res){
 	
 })
 
-app.get('/aya', middleware(30), function (req, res){
+app.get('/aya', middleware(10), function (req, res){
 	if (req.method === 'PUT') {
 	  return res.status(403).send('Forbidden!');
 	}
@@ -141,7 +142,7 @@ app.get('/aya', middleware(30), function (req, res){
 
 	rp(options)
 		.then(function ($) {
-			var currencyRates = [{},{},{}];
+			var currencyRates = {};
 			var data = []
 			var date = $('#tablepress-1>tbody>tr>td').first().text().replace(/\n/g,'').trim()
 			$('#tablepress-1>tbody>tr>td').each(function(i,element){
@@ -150,18 +151,21 @@ app.get('/aya', middleware(30), function (req, res){
 			})
 			
 			var j = 0 
-			var k = 0
+			var i = 0
 			while(j<data.length){
-				if(j%3==0)
-					currencyRates[k].currency = data[j]
-				else if(j%3==1)
-					currencyRates[k].buy = data[j]
-				else if(j%3==2)
-					currencyRates[k].sell = data[j]
-				j++;
-				if(j%3==0){
-					k++
+				var buy
+				var sell
+				if(j%3!=0){
+					buy = data[j]
+					j++
+					sell= data[j]
+					currencyRates[data[i]] = {
+						buy : buy,
+						sell : sell
+					}
+					i += 3
 				}
+				j++
 			}
 			res.send({
 				date: date,

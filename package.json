@@ -20,7 +20,6 @@
     "cloudflare-bypasser": "~0.0.3",
     "cloudscraper": "2.0.0",
     "memory-cache": "~0.2.0"
-
   },
   "devDependencies": {
     "request": "^2.81.0",
